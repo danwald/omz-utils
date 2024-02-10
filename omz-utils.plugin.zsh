@@ -1,4 +1,4 @@
-function ff(){
+ff() {
     if [[ $# == 0 ]]; then
         echo "usage: $0 [dir] filename|regex"
         return 1
@@ -18,7 +18,7 @@ function ff(){
     fi
 }
 
-function fnf(){
+fnf() {
     if [[ $# == 0 ]]; then
         echo "usage: $0 [dir] filename|regex"
         return 1
@@ -37,8 +37,7 @@ function fnf(){
     fi
 }
 
-function waitfor()
-{
+waitfor() {
     if [[ $# == 0 ]] ; then
         echo "usage: $0 pid"
         return 1
@@ -49,30 +48,27 @@ function waitfor()
         fi
     fi
     while [[ -e /proc/$i ]]; do
-        sleep 1 
+        sleep 1
     done
 }
 
-function rp()
-{
+rp() {
     if [[ $# == 0 ]] ; then
         echo "usage: $0 process_name"
         return 1
     else
-        for i in $@ 
+        for i in $@
         do
             ps aux | grep $i | grep -v grep
         done
     fi
 }
 
-function rpi()
-{
+rpi() {
     [[ $# != 0 ]] && rp $@ | awk '{print $2}'
 }
 
-function kp()
-{
+kp() {
     if [[ $# == 0 ]] ; then
         echo "usage: $0 process_name"
         return 1
@@ -85,7 +81,7 @@ function kp()
     fi
 }
 
-function dbash(){
+dbash() {
     if test -z "$1"
     then
         container=`docker ps -q | head -1`
@@ -96,7 +92,7 @@ function dbash(){
     docker exec -it $container bash
 }
 
-function drun(){
+drun() {
     if test -z "$1"
     then
         container=`docker images -q | head -1`
@@ -107,14 +103,12 @@ function drun(){
     docker run -d $container
 }
 
-function dtags(){
+dtags() {
     curl -s -S "https://registry.hub.docker.com/v2/repositories/$@/tags/" | jq '."results"[]["name"]' |sort
 }
 
-
 # function for setting terminal title
-title() 
-{
+title() {
    if [[ $TERM == "screen" ]]; then
      # Use these two for GNU Screen:
      print -nR $'\033k'$1$'\033'\\\ > /dev/null
@@ -125,7 +119,7 @@ title()
    fi
 }
 
-get_git_branch() { 
+get_git_branch() {
    git branch 2> /dev/null | awk '/^\*/ { print $2 }' || return 1
 }
 
@@ -137,7 +131,7 @@ get_git_dirty() {
     return $?
 }
 
-get_git_prompt() { 
+get_git_prompt() {
    echo "[$(get_git_branch)$(get_git_dirty)]"
 }
 
@@ -149,10 +143,12 @@ fd() {
                   -o -type d -print 2> /dev/null | fzf +m) &&
   cd "$dir"
 }
+
 # fh - search in your command history and execute selected command
 fh() {
   eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
 }
+
 # ch - browse chrome history
 ch() {
   local cols sep
@@ -168,9 +164,17 @@ ch() {
   fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs open
 }
 
-reset_network()
-{
+reset_network() {
 	ADAPTER=${2:=en0}
 	echo "Resetting network adapter $ADAPTER"
 	sudo ifconfig $ADAPTER down && sudo route -n flush && sudo ifconfig $ADAPTER up
+}
+
+rw() {
+    WORK_FILE="${WORK_FILE:-$HOME/.work.log}"
+    BACKUP_FILE="$WORK_FILE.bck"
+    # head insert into backupfile
+    echo "`date +'%Y-%m-%d'` $@" | cat - $WORK_FILE > $BACKUP_FILE
+    # preserve simlink
+    cat $BACKUP_FILE > $WORK_FILE
 }
